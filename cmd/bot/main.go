@@ -1,11 +1,15 @@
 package main
 
 import (
+	"github.com/bannovdaniil/bot/internal/service/product"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"strconv"
 )
+
+var productService = product.NewService()
 
 func main() {
 	err := godotenv.Load()
@@ -36,10 +40,25 @@ func main() {
 		switch update.Message.Command() {
 		case "help":
 			helpCommand(bot, update.Message)
+		case "list":
+			listCommand(bot, update.Message)
 		default:
 			defaultAction(bot, update.Message)
 		}
 	}
+}
+
+// listCommand - action for /help command
+//
+// send help message
+func listCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
+	productsListText := "List of our products: \n\n"
+	for i, item := range productService.List() {
+		productsListText += strconv.Itoa(i+1) + ". " + item.Title + "\n"
+	}
+
+	msg := tgbotapi.NewMessage(message.Chat.ID, productsListText)
+	bot.Send(msg)
 }
 
 // helpCommand - action for /help command
