@@ -1,24 +1,19 @@
 package main
 
 import (
-	"bufio"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 )
 
 func main() {
-	file, err := os.Open("token.txt")
+	err := godotenv.Load()
 	if err != nil {
-		log.Panic("Cannot open `token.txt` file insert API token")
+		log.Panic("Error loading .env file TOKEN=")
 	}
-	defer file.Close()
+	token := os.Getenv("TOKEN")
 
-	scanner := bufio.NewScanner(file)
-	var token string
-	if scanner.Scan() {
-		token = scanner.Text()
-	}
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
