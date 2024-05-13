@@ -1,13 +1,25 @@
 package main
 
 import (
-	"log"
-
+	"bufio"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"log"
+	"os"
 )
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI("MyAwesomeBotToken")
+	file, err := os.Open("token.txt")
+	if err != nil {
+		log.Panic("Cannot open `token.txt` file insert API token")
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var token string
+	if scanner.Scan() {
+		token = scanner.Text()
+	}
+	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -25,7 +37,7 @@ func main() {
 		if update.Message != nil { // If we got a message
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "You send me text: "+update.Message.Text)
 			msg.ReplyToMessageID = update.Message.MessageID
 
 			bot.Send(msg)
